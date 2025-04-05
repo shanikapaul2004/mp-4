@@ -4,10 +4,9 @@ import { Paper, Typography, Grid, Box, Divider } from '@mui/material';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AirIcon from '@mui/icons-material/Air';
-import { WeatherResponse } from '../types';
 
 interface WeatherCardProps {
-    data: WeatherResponse;
+    data: any; // Using any instead of importing from ../types
 }
 
 export default function WeatherCard({ data }: WeatherCardProps) {

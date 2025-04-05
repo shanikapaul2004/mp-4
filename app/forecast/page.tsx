@@ -10,44 +10,51 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import ThunderstormIcon from '@mui/icons-material/Thunderstorm';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import CloudIcon from '@mui/icons-material/Cloud';
-import { WeatherResponse, Day } from '../types';
 
 const ForecastPageContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [forecastData, setForecastData] = useState<WeatherResponse | null>(null);
+    const [forecastData, setForecastData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Fix for hydration errors - only render after mount
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Get location from URL or use default
     const location = searchParams?.get('location') || 'New York';
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError('');
+        // Only fetch data after component is mounted on client
+        if (isMounted && location) {
+            const fetchData = async () => {
+                try {
+                    setLoading(true);
+                    setError('');
 
-                const response = await fetch(`/api/weather?location=${encodeURIComponent(location)}`);
-                const data = await response.json();
+                    const response = await fetch(`/api/weather?location=${encodeURIComponent(location)}`);
+                    const data = await response.json();
 
-                if (!response.ok) throw new Error(data.error || 'Failed to fetch forecast');
+                    if (!response.ok) throw new Error(data.error || 'Failed to fetch forecast');
 
-                setForecastData(data);
-            } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Error fetching forecast data';
-                setError(errorMessage);
-                console.error('API Error:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+                    setForecastData(data);
+                } catch (err) {
+                    const errorMessage = err instanceof Error ? err.message : 'Error fetching forecast data';
+                    setError(errorMessage);
+                    console.error('API Error:', err);
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        if (location) fetchData();
-    }, [location]); // Trigger when location changes
+            fetchData();
+        }
+    }, [location, isMounted]);
 
     const handleSearch = (newLocation: string) => {
-        // Update URL to trigger new search
         router.replace(`/forecast?location=${encodeURIComponent(newLocation)}`);
     };
 
@@ -58,7 +65,7 @@ const ForecastPageContent = () => {
                 month: 'short',
                 day: 'numeric'
             });
-        } catch (_) { // Use underscore for unused variable
+        } catch (_) {
             return dateStr;
         }
     };
@@ -70,6 +77,20 @@ const ForecastPageContent = () => {
         if (lower.includes('snow') || lower.includes('ice')) return <AcUnitIcon color="action" sx={{ fontSize: 40 }} />;
         return <CloudIcon color="action" sx={{ fontSize: 40 }} />;
     };
+
+    // Return a loading state until client-side hydration is complete
+    if (!isMounted) {
+        return (
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Typography variant="h3" component="h1" gutterBottom color="primary" sx={{ textAlign: 'center' }}>
+                    Weather Forecast
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                    <CircularProgress />
+                </Box>
+            </Container>
+        );
+    }
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -89,7 +110,7 @@ const ForecastPageContent = () => {
                 </Box>
             ) : forecastData?.days ? (
                 <Grid container spacing={2}>
-                    {forecastData.days.slice(0, 7).map((day: Day) => (
+                    {forecastData.days.slice(0, 7).map((day: any) => (
                         <Grid item xs={12} sm={6} md={4} lg={3} key={day.datetimeEpoch}>
                             <Card elevation={3} sx={{ height: '100%' }}>
                                 <CardContent>
