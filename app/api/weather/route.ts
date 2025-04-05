@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
 
     // Validate location
     if (!location) {
+        console.log('API Error: Missing location parameter');
         return NextResponse.json(
             { error: 'Location parameter is required' },
             { status: 400 }
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
 
         // Make sure API key exists
         if (!API_KEY) {
-            console.error('API key is missing');
+            console.error('API Error: Missing API key');
             return NextResponse.json(
                 { error: 'Server configuration error' },
                 { status: 500 }
@@ -28,12 +29,32 @@ export async function GET(request: NextRequest) {
         const encodedLocation = encodeURIComponent(location);
         const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodedLocation}?unitGroup=us&key=${API_KEY}&contentType=json`;
 
-        console.log(`Fetching weather for: ${location}`);
+        console.log(`API: Fetching weather for: ${location}`);
 
-        const response = await fetch(url);
+        // Add headers to ensure JSON response
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        // Check if the response is JSON before parsing
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.error('Response is not JSON:', contentType);
+            const text = await response.text();
+            console.error(`First 100 chars of response: ${text.substring(0, 100)}`);
+            return NextResponse.json(
+                { error: 'Invalid response from weather service' },
+                { status: 500 }
+            );
+        }
+
+        console.log(`API: Response status: ${response.status}`);
 
         if (!response.ok) {
-            console.error(`API error: ${response.status} for location ${location}`);
+            console.error(`API Error: ${response.status} for location ${location}`);
 
             if (response.status === 404) {
                 return NextResponse.json(
@@ -56,9 +77,11 @@ export async function GET(request: NextRequest) {
         }
 
         const data = await response.json();
+        console.log(`API: Successfully retrieved weather data for ${location}`);
+
         return NextResponse.json(data);
     } catch (error) {
-        console.error('Error fetching weather data:', error);
+        console.error('API Error fetching weather data:', error);
         return NextResponse.json(
             { error: 'Failed to fetch weather data. Please try again later.' },
             { status: 500 }

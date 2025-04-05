@@ -45,10 +45,7 @@ export default function RootLayout({
             <Box sx={{ bgcolor: 'background.paper', py: 6, mt: 'auto' }}>
                 <Container maxWidth="lg">
                     <Typography variant="body2" color="text.secondary" align="center">
-                        Weather data provided by VisualCrossing Weather API
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" align="center">
-                        © {new Date().getFullYear()} Weather App - Educational Project
+                       Data from VisualCrossing Weather API
                     </Typography>
                 </Container>
             </Box>

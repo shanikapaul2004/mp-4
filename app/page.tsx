@@ -1,74 +1,50 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import SearchForm from './components/SearchForm';
 import WeatherCard from './components/WeatherCard';
-import { Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import ErrorDisplay from './components/ErrorDisplay';
+import { Container, Typography, Box, CircularProgress } from '@mui/material';
 
-export default function Home() {
-    const [isClient, setIsClient] = useState(false);
+const HomeContent = () => {
     const [weatherData, setWeatherData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [location, setLocation] = useState('New York');
 
+    // Fetch weather whenever location changes or on initial load
     useEffect(() => {
-        setIsClient(true);
+        fetchWeather(location);
+    }, [location]);
 
-        // Fetch initial data
-        const fetchInitialData = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(`/api/weather?location=${encodeURIComponent('New York')}`);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to fetch initial weather data');
-                }
-
-                setWeatherData(data);
-            } catch (err) {
-                console.error('Error fetching initial data:', err);
-                // Don't show error for initial load
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchInitialData();
-    }, []);
-
-    const handleSearch = async (location: string) => {
-        setLoading(true);
-        setError('');
-
+    const fetchWeather = async (locationString: string) => {
         try {
-            const response = await fetch(`/api/weather?location=${encodeURIComponent(location)}`);
+            console.log(`Fetching weather for: ${locationString}`); // Debug log
+            setLoading(true);
+            setError('');
+
+            const response = await fetch(`/api/weather?location=${encodeURIComponent(locationString)}`);
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to fetch weather data');
+                throw new Error(data.error || 'Failed to fetch data');
             }
 
+            console.log('Weather data received'); // Debug log
             setWeatherData(data);
         } catch (err: any) {
-            setError(err.message || 'Error fetching weather data');
-            console.error('Search error:', err);
+            console.error('Error fetching weather:', err);
+            setError(err.message || 'Failed to fetch weather data');
         } finally {
             setLoading(false);
         }
     };
 
-    // Show loading state until client-side rendering is active
-    if (!isClient) {
-        return (
-            <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
-                <Typography variant="h3" component="h1" gutterBottom>
-                    Weather Forecast App
-                </Typography>
-                <CircularProgress sx={{ mt: 4 }} />
-            </Container>
-        );
-    }
+    const handleSearch = (newLocation: string) => {
+        console.log(`Search triggered for: ${newLocation}`); // Debug log
+        setLocation(newLocation);
+    };
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -77,14 +53,10 @@ export default function Home() {
             </Typography>
 
             <Box sx={{ maxWidth: 'md', mx: 'auto', mb: 6 }}>
-                <SearchForm onSearch={handleSearch} />
+                <SearchForm onSearch={handleSearch} defaultLocation={location} />
             </Box>
 
-            {error && (
-                <Alert severity="error" sx={{ my: 2 }}>
-                    {error}
-                </Alert>
-            )}
+            {error && <ErrorDisplay message={error} />}
 
             {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -93,10 +65,13 @@ export default function Home() {
             ) : weatherData ? (
                 <WeatherCard data={weatherData} />
             ) : (
-                <Typography sx={{ textAlign: 'center', my: 4 }}>
-                    Enter a location to see the weather forecast
+                <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                    No weather data available. Try searching for a location.
                 </Typography>
             )}
         </Container>
     );
-}
+};
+
+// Disable SSR for home page too
+export default dynamic(() => Promise.resolve(HomeContent), { ssr: false });

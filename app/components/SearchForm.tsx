@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TextField, Button, Box, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -10,12 +10,19 @@ interface SearchFormProps {
 }
 
 export default function SearchForm({ onSearch, defaultLocation = '' }: SearchFormProps) {
-    const [location, setLocation] = useState(defaultLocation);
+    const [location, setLocation] = useState('');
+
+    // Sync with defaultLocation after hydration
+    useEffect(() => {
+        setLocation(defaultLocation);
+    }, [defaultLocation]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (location.trim()) {
-            onSearch(location.trim());
+        const trimmed = location.trim();
+        if (trimmed) {
+            onSearch(trimmed);
+            setLocation(trimmed); // Clear input after search
         }
     };
 
@@ -28,6 +35,7 @@ export default function SearchForm({ onSearch, defaultLocation = '' }: SearchFor
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     variant="outlined"
+                    autoComplete="off"
                 />
                 <Button
                     type="submit"
