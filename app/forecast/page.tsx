@@ -10,11 +10,12 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import ThunderstormIcon from '@mui/icons-material/Thunderstorm';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import CloudIcon from '@mui/icons-material/Cloud';
+import { WeatherResponse, Day } from '../types';
 
 const ForecastPageContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [forecastData, setForecastData] = useState<any>(null);
+    const [forecastData, setForecastData] = useState<WeatherResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -33,8 +34,9 @@ const ForecastPageContent = () => {
                 if (!response.ok) throw new Error(data.error || 'Failed to fetch forecast');
 
                 setForecastData(data);
-            } catch (err: any) {
-                setError(err.message || 'Error fetching forecast data');
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Error fetching forecast data';
+                setError(errorMessage);
                 console.error('API Error:', err);
             } finally {
                 setLoading(false);
@@ -56,7 +58,7 @@ const ForecastPageContent = () => {
                 month: 'short',
                 day: 'numeric'
             });
-        } catch (e) {
+        } catch (_) { // Use underscore for unused variable
             return dateStr;
         }
     };
@@ -87,7 +89,7 @@ const ForecastPageContent = () => {
                 </Box>
             ) : forecastData?.days ? (
                 <Grid container spacing={2}>
-                    {forecastData.days.slice(0, 7).map((day: any, index: number) => (
+                    {forecastData.days.slice(0, 7).map((day: Day) => (
                         <Grid item xs={12} sm={6} md={4} lg={3} key={day.datetimeEpoch}>
                             <Card elevation={3} sx={{ height: '100%' }}>
                                 <CardContent>

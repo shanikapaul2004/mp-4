@@ -6,9 +6,10 @@ import SearchForm from './components/SearchForm';
 import WeatherCard from './components/WeatherCard';
 import ErrorDisplay from './components/ErrorDisplay';
 import { Container, Typography, Box, CircularProgress } from '@mui/material';
+import { WeatherResponse } from './types';
 
 const HomeContent = () => {
-    const [weatherData, setWeatherData] = useState(null);
+    const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [location, setLocation] = useState('New York');
@@ -33,9 +34,10 @@ const HomeContent = () => {
 
             console.log('Weather data received'); // Debug log
             setWeatherData(data);
-        } catch (err: any) {
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to fetch weather data';
             console.error('Error fetching weather:', err);
-            setError(err.message || 'Failed to fetch weather data');
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

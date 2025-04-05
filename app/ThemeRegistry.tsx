@@ -3,6 +3,10 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { blue, orange } from '@mui/material/colors';
+import { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Container, Button, Box } from '@mui/material';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import Link from 'next/link';
 
 // Create a theme instance
 const theme = createTheme({
@@ -74,10 +78,55 @@ const theme = createTheme({
 });
 
 export default function ThemeRegistry({ children }: { children: React.ReactNode }) {
+    // Client-side only state
+    const [mounted, setMounted] = useState(false);
+    const [currentYear, setCurrentYear] = useState("");
+
+    // Only run after hydration
+    useEffect(() => {
+        setMounted(true);
+        setCurrentYear(new Date().getFullYear().toString());
+    }, []);
+
+    // Return empty div until client-side hydration is complete
+    if (!mounted) {
+        return <div style={{ visibility: 'hidden' }}></div>;
+    }
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            {children}
+            <AppBar position="static" color="primary">
+                <Toolbar>
+                    <WbSunnyIcon sx={{ mr: 1 }} />
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+                            WeatherApp
+                        </Link>
+                    </Typography>
+                    <Button color="inherit" component={Link} href="/">
+                        Home
+                    </Button>
+                    <Button color="inherit" component={Link} href="/forecast">
+                        Forecast
+                    </Button>
+                </Toolbar>
+            </AppBar>
+
+            <main>
+                {children}
+            </main>
+
+            <Box sx={{ bgcolor: 'background.paper', py: 6, mt: 'auto' }}>
+                <Container maxWidth="lg">
+                    <Typography variant="body2" color="text.secondary" align="center">
+                        Weather data provided by VisualCrossing Weather API
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" align="center">
+                        © {currentYear} Weather App - Educational Project
+                    </Typography>
+                </Container>
+            </Box>
         </ThemeProvider>
     );
 }

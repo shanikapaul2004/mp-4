@@ -4,10 +4,10 @@ import { Paper, Typography, Grid, Box, Divider } from '@mui/material';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AirIcon from '@mui/icons-material/Air';
-
+import { WeatherResponse } from '../types';
 
 interface WeatherCardProps {
-    data: any;
+    data: WeatherResponse;
 }
 
 export default function WeatherCard({ data }: WeatherCardProps) {
@@ -70,7 +70,7 @@ export default function WeatherCard({ data }: WeatherCardProps) {
 
             {data.days && data.days.length > 0 && (
                 <Box sx={{ mt: 4 }}>
-                    <Typography variant="h6" gutterBottom>Today's Forecast</Typography>
+                    <Typography variant="h6" gutterBottom>Today&apos;s Forecast</Typography>
                     <Typography variant="body2">
                         {data.days[0].description || `High: ${Math.round(data.days[0].tempmax)}°F, Low: ${Math.round(data.days[0].tempmin)}°F`}
                     </Typography>
