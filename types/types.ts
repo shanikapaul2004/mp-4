@@ -1,5 +1,5 @@
 /**
- * Core types for the Visual Crossing Weather API responses
+ * Core types.ts for the Visual Crossing Weather API responses
  */
 
 export interface WeatherResponse {

@@ -6,7 +6,7 @@ import SearchForm from './components/SearchForm';
 import WeatherCard from './components/WeatherCard';
 import ErrorDisplay from './components/ErrorDisplay';
 import { Container, Typography, Box, CircularProgress } from '@mui/material';
-import { WeatherResponse } from './types';
+import { WeatherResponse } from '../types/types';
 
 const HomeContent = () => {
     const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
