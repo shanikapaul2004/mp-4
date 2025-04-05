@@ -6,7 +6,7 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import AirIcon from '@mui/icons-material/Air';
 
 interface WeatherCardProps {
-    data: any; // Using any instead of importing from ../types
+    data: any;
 }
 
 export default function WeatherCard({ data }: WeatherCardProps) {
@@ -44,21 +44,26 @@ export default function WeatherCard({ data }: WeatherCardProps) {
             </Typography>
 
             <Grid container spacing={3}>
-                <Grid item xs={4}>
+                {/* First Grid Item */}
+                <Grid item xs={4} key="humidity">
                     <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                         <WaterDropIcon color="primary" sx={{ fontSize: 30, mb: 1 }} />
                         <Typography variant="body2">Humidity</Typography>
                         <Typography variant="body1">{current.humidity}%</Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={4}>
+
+                {/* Second Grid Item */}
+                <Grid item xs={4} key="wind">
                     <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                         <AirIcon sx={{ fontSize: 30, mb: 1 }} />
                         <Typography variant="body2">Wind</Typography>
                         <Typography variant="body1">{Math.round(current.windspeed)} mph</Typography>
                     </Box>
                 </Grid>
-                <Grid item xs={4}>
+
+                {/* Third Grid Item */}
+                <Grid item xs={4} key="uvindex">
                     <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                         <ThermostatIcon color="error" sx={{ fontSize: 30, mb: 1 }} />
                         <Typography variant="body2">UV Index</Typography>
